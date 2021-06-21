@@ -12,14 +12,21 @@ public class Coordination : MonoBehaviour {
    public KMBombInfo Bomb;
    public KMAudio Audio;
    public KMSelectable[] Buttons;
-   public TextMesh[] Texts;
-   public GameObject[] ButtonColors;
-   public Material Black;
-
+   private TextMesh[] Texts;
+   private MeshRenderer[] Meshes;
+    private Color[] colors;
    int StartingCoordinate;
    int Current;
    int AnswerCoordinate;
-
+    bool[] flashed = new bool[36]; //For solve anim
+    enum SqCols
+    {
+        White,
+        Black,
+        Highlight,
+        Solved
+    }
+   
    string[] ManualCoordinates = {
       "F4", "A2", "E2", "D4", "C5", "E1",
       "A3", "F3", "D1", "C2", "E6", "D3",
@@ -45,9 +52,15 @@ public class Coordination : MonoBehaviour {
 
    void Awake () {
       moduleId = moduleIdCounter++;
-
-      foreach (KMSelectable Button in Buttons) {
+      Texts = Buttons.Select(x => x.GetComponentInChildren<TextMesh>()).ToArray();
+      Meshes = Buttons.Select(x => x.GetComponent<MeshRenderer>()).ToArray();
+        colors = new Color[] { "DDDDDD".Color(), "27172B".Color(), "7A9CB0".Color(), "6EFB69".Color() };
+      foreach (KMSelectable Button in Buttons)
+        {
           Button.OnInteract += delegate () { ButtonPress(Button); return false; };
+            Button.OnHighlight += delegate () { if (!moduleSolved) { Audio.PlaySoundAtTransform("SelectionBeep", Button.transform); Button.GetComponent<MeshRenderer>().material.color = colors[(int)SqCols.Highlight]; }  };
+            Button.OnHighlightEnded += delegate () { if (!moduleSolved) Button.GetComponent<MeshRenderer>().material.color =
+                (Array.IndexOf(Buttons, Button) == StartingCoordinate) ? colors[(int)SqCols.Black] : colors[(int)SqCols.White]; };
       }
 
    }
@@ -59,6 +72,8 @@ public class Coordination : MonoBehaviour {
       if (Button == Buttons[AnswerCoordinate]) {
          GetComponent<KMBombModule>().HandlePass();
          moduleSolved = true;
+            Audio.PlaySoundAtTransform("SolveSound", transform);
+            StartCoroutine(Solve(AnswerCoordinate));
       }
       else {
          GetComponent<KMBombModule>().HandleStrike();
@@ -75,7 +90,7 @@ public class Coordination : MonoBehaviour {
          Texts[i].text = ModuleCoordinates[i];
       }
       StartingCoordinate = Rnd.Range(0, 36);
-      ButtonColors[StartingCoordinate].GetComponent<MeshRenderer>().material = Black;
+      Meshes[StartingCoordinate].material.color = colors[(int)SqCols.Black];
       Texts[StartingCoordinate].color = Color.white;
       Current = StartingCoordinate;
       Debug.LogFormat("[Coordination #{0}] The starting coordinate is {1}.", moduleId, NumberToCoordinate(StartingCoordinate));
@@ -132,6 +147,29 @@ public class Coordination : MonoBehaviour {
    string NumberToCoordinate (int Input) {
       return "ABCDEF"[Input % 6].ToString() + (Input / 6 + 1).ToString();
    }
+    IEnumerator Solve(int pos)
+    {
+        flashed[pos] = true;
+        Texts[pos].gameObject.SetActive(false);
+        Meshes[pos].material.color = Color.white;
+        yield return new WaitForSeconds(0.1f);
+        List<int> adjs = new List<int>();
+        if (pos > 5) adjs.Add(pos - 6);
+        if (pos < 30) adjs.Add(pos + 6);
+        if (pos % 6 != 0) adjs.Add(pos - 1);
+        if (pos % 6 != 5) adjs.Add(pos + 1);
+        foreach (int nextPos in adjs.Where(x => !flashed[x]))
+            StartCoroutine(Solve(nextPos));
+        yield return new WaitForSeconds(0.3f);
+        float lerp = 0;
+        while (lerp < 1)
+        {
+            lerp += 5*Time.deltaTime;
+            Meshes[pos].material.color = Color.Lerp(Color.white, colors[(int)SqCols.Solved], lerp);
+            yield return null;
+        }
+    }
+
 
 #pragma warning disable 414
    private readonly string TwitchHelpMessage = @"Use !{0} X# to press that button.";

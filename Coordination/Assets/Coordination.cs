@@ -93,6 +93,13 @@ public class Coordination : MonoBehaviour {
       Meshes[StartingCoordinate].material.color = colors[(int)SqCols.Black];
       Texts[StartingCoordinate].color = Color.white;
       Current = StartingCoordinate;
+      Debug.LogFormat("[Coordination #{0}] The grid is as follows: ", moduleId);
+      Debug.LogFormat("[Coordination #{0}] {1} {2} {3} {4} {5} {6}", moduleId, ModuleCoordinates[0], ModuleCoordinates[1], ModuleCoordinates[2], ModuleCoordinates[3], ModuleCoordinates[4], ModuleCoordinates[5]);
+      Debug.LogFormat("[Coordination #{0}] {1} {2} {3} {4} {5} {6}", moduleId, ModuleCoordinates[6], ModuleCoordinates[7], ModuleCoordinates[8], ModuleCoordinates[9], ModuleCoordinates[10], ModuleCoordinates[11]);
+      Debug.LogFormat("[Coordination #{0}] {1} {2} {3} {4} {5} {6}", moduleId, ModuleCoordinates[12], ModuleCoordinates[13], ModuleCoordinates[14], ModuleCoordinates[15], ModuleCoordinates[16], ModuleCoordinates[17]);
+      Debug.LogFormat("[Coordination #{0}] {1} {2} {3} {4} {5} {6}", moduleId, ModuleCoordinates[18], ModuleCoordinates[19], ModuleCoordinates[20], ModuleCoordinates[21], ModuleCoordinates[22], ModuleCoordinates[23]);
+      Debug.LogFormat("[Coordination #{0}] {1} {2} {3} {4} {5} {6}", moduleId, ModuleCoordinates[24], ModuleCoordinates[25], ModuleCoordinates[26], ModuleCoordinates[27], ModuleCoordinates[28], ModuleCoordinates[29]);
+      Debug.LogFormat("[Coordination #{0}] {1} {2} {3} {4} {5} {6}", moduleId, ModuleCoordinates[30], ModuleCoordinates[31], ModuleCoordinates[32], ModuleCoordinates[33], ModuleCoordinates[34], ModuleCoordinates[35]);
       Debug.LogFormat("[Coordination #{0}] The starting coordinate is {1}.", moduleId, NumberToCoordinate(StartingCoordinate));
       Pathfinder();
    }

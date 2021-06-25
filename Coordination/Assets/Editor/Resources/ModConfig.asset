@@ -14,7 +14,22 @@ MonoBehaviour:
   id: Coordination
   title: Coordination
   author: me
-  description: 
+  description: 'Want to see me index into the table?
+
+    Want to see me do it again?
+
+
+    Alternate between using the manual''s or module''s table with the coordinates
+    from the opposite one.
+
+
+    Thanks to Danny7007 for making the visuals and sound effects
+
+
+    Manual can be found at ktane.timwi.de or in the manuals folder of your game.
+
+
+    If there are any bugs, contact Fartlicker777#9169 on Discord.'
   version: 
   outputFolder: build
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 2800000, guid: aca6e267446096649af4520b1f6d03b1, type: 3}

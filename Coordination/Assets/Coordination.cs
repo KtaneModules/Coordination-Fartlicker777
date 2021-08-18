@@ -16,7 +16,7 @@ public class Coordination : MonoBehaviour {
    int StartingCoordinate;
    int Current;
    int AnswerCoordinate;
-   int InfiniteLoopCounter;
+   int[] InfiniteLoopCounter = new int[2];
    bool[] flashed = new bool[36]; //For solve anim
    enum SqCols {
       White,
@@ -106,7 +106,7 @@ public class Coordination : MonoBehaviour {
       int Previous = Current;
       if (Turn) {
          while (TakenManualSpots[Current]) { //If we land on a spot that would cause an infinite loop.
-            if (InfiniteLoopCounter == 6) {
+            if (InfiniteLoopCounter[0] == 6) {
                Debug.LogFormat("[Coordination #{0}] An infinite loop is unavoidable. Submit the starting square to disarm the module.", moduleId);
                AnswerCoordinate = StartingCoordinate;
                return;
@@ -120,19 +120,31 @@ public class Coordination : MonoBehaviour {
             else {
                Current++;
             }
-            InfiniteLoopCounter++;
+            InfiniteLoopCounter[0]++;
          }
          TakenManualSpots[Current] = true;
+         InfiniteLoopCounter[0] &= 0;
          Current = CoordinateToNumber(ManualCoordinates[Current]);
-         Debug.LogFormat("[Coordination #{0}] From position {1} in the manual, we land on position {2} on the module.", moduleId, NumberToCoordinate(Previous), ModuleCoordinates[Current]);
+         Debug.LogFormat("[Coordination #{0}] From position {1} in the manual, we land on position {2} on the module.", moduleId, NumberToCoordinate(Previous), NumberToCoordinate(Current));
          Turn = !Turn;
       }
       else {
-         if (TakenModuleSpots[Current]) { //If we land on a spot that would cause an infinite loop.
+         while (TakenModuleSpots[Current]) { //If we land on a spot that would cause an infinite loop.
             Debug.LogFormat("[Coordination #{0}] To prevent an infinite loop, we move one to the right.", moduleId);
-            //AnswerCoordinate = StartingCoordinate;
-            //return;
+            if (InfiniteLoopCounter[1] == 6) {
+               Debug.LogFormat("[Coordination #{0}] An infinite loop is unavoidable. Submit the starting square to disarm the module.", moduleId);
+               AnswerCoordinate = StartingCoordinate;
+               return;
+            }
+            if (Current % 6 == 5) {
+               Current -= 5;
+            }
+            else {
+               Current++;
+            }
+            InfiniteLoopCounter[1]++;
          }
+         InfiniteLoopCounter[1] &= 0;
          TakenModuleSpots[Current] = true;
          Current = CoordinateToNumber(ModuleCoordinates[Current]);
          Debug.LogFormat("[Coordination #{0}] From position {1} on the module, we land on position {2} in the manual.", moduleId, NumberToCoordinate(Previous), NumberToCoordinate(Current));
@@ -187,6 +199,7 @@ public class Coordination : MonoBehaviour {
 
    IEnumerator ProcessTwitchCommand (string Command) {
       Command = Command.Trim().ToUpper();
+      yield return null;
       if (!"ABCDEF".Contains(Command[0]) || !"123456".Contains(Command[1]) || Command.Length != 2) {
          yield return "sendtochaterror I don't understand!";
       }

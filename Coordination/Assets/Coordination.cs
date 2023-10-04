@@ -194,12 +194,16 @@ public class Coordination : MonoBehaviour {
 
 
 #pragma warning disable 414
-   private readonly string TwitchHelpMessage = @"Use !{0} X# to press that button.";
+   private readonly string TwitchHelpMessage = @"Use !{0} X# to press the button in that position. Use !{0} detonate to blow up the bomb. Use !{0} eXish to post eXish's home address.";
 #pragma warning restore 414
 
    IEnumerator ProcessTwitchCommand (string Command) {
       Command = Command.Trim().ToUpper();
       yield return null;
+      if (Command == "EXISH") {
+         yield return "sendtochat 1600 Pennsylvania Avenue, N.W.";
+         yield break;
+      }
       if (!"ABCDEF".Contains(Command[0]) || !"123456".Contains(Command[1]) || Command.Length != 2) {
          yield return "sendtochaterror I don't understand!";
       }
